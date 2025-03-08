@@ -156,8 +156,7 @@
 
     <!-- Hinweis hinzufügen -->
     <div class="note">
-        <strong>Hinweis:</strong> Ich empfehle zur Nutzung einen separaten Browser, zum Beispiel Microsoft Edge, da bei Löschung von Cookies und Verlauf die Eingaben verloren gehen. 
-        Das Schließen des Browsers löscht die Daten hingegen nicht, die Daten werden Lokal gespeichert.
+        <strong>Hinweis:</strong> Ich empfehle zur Nutzung einen separaten Browser, da bei Löschung von Cookies und Verlauf die Eingaben verloren gehen. Das reine Schließen des Browsers löscht die Daten hingegen nicht.
     </div>
 
     <form id="cashbackForm">
@@ -279,7 +278,7 @@
                 filteredCashbacks = filteredCashbacks.filter(cashback => cashback.provider.toLowerCase().includes(providerFilter));
             }
 
-            filteredCashbacks.forEach(cashback => {
+            filteredCashbacks.forEach((cashback, index) => {
                 cashbackList.innerHTML += `
                     <tr class="${cashback.status}">
                         <td>${cashback.purchaseDate}</td>
@@ -290,11 +289,19 @@
                         <td>${cashback.iban}</td>
                         <td>${cashback.receipt}</td>
                         <td>${cashback.status}</td>
-                        <td><button class="delete-btn" onclick="deleteCashback(${cashbacks.indexOf(cashback)})">Löschen</button></td>
+                        <td><button class="delete-btn" onclick="deleteCashback(${index})">Löschen</button></td>
                     </tr>`;
             });
+        }
+
+        function deleteCashback(index) {
+            let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
+            cashbacks.splice(index, 1); // Entfernt den Cashback-Eintrag
+            localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
+            loadCashbacks(); // Aktualisiert die Anzeige
         }
     </script>
 
 </body>
 </html>
+
