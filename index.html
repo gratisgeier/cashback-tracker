@@ -213,10 +213,8 @@
         function addCashback(event) {
             event.preventDefault();
 
-            const purchaseDate = document.getElementById("purchaseDate").value;
-
             const cashback = {
-                purchaseDate: purchaseDate,
+                purchaseDate: document.getElementById("purchaseDate").value,
                 provider: document.getElementById("provider").value,
                 amount: parseFloat(document.getElementById("amount").value).toFixed(2),
                 phone: document.getElementById("phone").value,
@@ -229,6 +227,18 @@
             let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
             cashbacks.push(cashback);
             localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
+
+            // Save form values to localStorage
+            localStorage.setItem("lastFormValues", JSON.stringify({
+                purchaseDate: cashback.purchaseDate,
+                provider: cashback.provider,
+                amount: cashback.amount,
+                phone: cashback.phone,
+                email: cashback.email,
+                iban: cashback.iban,
+                receipt: cashback.receipt,
+                status: cashback.status
+            }));
 
             document.getElementById("cashbackForm").reset();
             loadCashbacks();
@@ -256,12 +266,7 @@
                 filteredCashbacks = filteredCashbacks.filter(cashback => cashback.provider.toLowerCase().includes(providerFilter));
             }
 
-            let pendingTotal = 0, receivedTotal = 0;
-
-            filteredCashbacks.forEach((cashback, index) => {
-                if (cashback.status === "pending") pendingTotal += parseFloat(cashback.amount);
-                if (cashback.status === "received") receivedTotal += parseFloat(cashback.amount);
-
+            filteredCashbacks.forEach(cashback => {
                 cashbackList.innerHTML += `
                     <tr class="${cashback.status}">
                         <td>${cashback.purchaseDate}</td>
@@ -271,19 +276,10 @@
                         <td>${cashback.email}</td>
                         <td>${cashback.iban}</td>
                         <td>${cashback.receipt}</td>
-                        <td>
-                            <select onchange="updateStatus(${index}, this.value)">
-                                <option value="pending" ${cashback.status === "pending" ? "selected" : ""}>Offen</option>
-                                <option value="received" ${cashback.status === "received" ? "selected" : ""}>Erhalten</option>
-                                <option value="rejected" ${cashback.status === "rejected" ? "selected" : ""}>Abgelehnt</option>
-                            </select>
-                        </td>
-                        <td><button class="delete-btn" onclick="deleteCashback(${index})">Löschen</button></td>
+                        <td>${cashback.status}</td>
+                        <td><button class="delete-btn" onclick="deleteCashback(${cashbacks.indexOf(cashback)})">Löschen</button></td>
                     </tr>`;
             });
-
-            document.getElementById("pendingTotal").innerText = pendingTotal.toFixed(2);
-            document.getElementById("receivedTotal").innerText = receivedTotal.toFixed(2);
         }
     </script>
 
