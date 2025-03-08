@@ -148,15 +148,7 @@
     </h1>
 
     <form id="cashbackForm">
-        <select id="day" required>
-            <option value="">Tag</option>
-        </select>
-        <select id="month" required>
-            <option value="">Monat</option>
-        </select>
-        <select id="year" required>
-            <option value="">Jahr</option>
-        </select>
+        <input type="date" id="purchaseDate" required>
         <input type="text" id="provider" required placeholder="Geschäft">
         <input type="number" id="amount" step="0.01" required placeholder="Betrag (€)">
         <input type="tel" id="phone" required placeholder="Handynummer">
@@ -183,17 +175,7 @@
     </div>
     <div>
         <label for="purchaseDateFilter">Kaufdatum:</label>
-        <div>
-            <select id="dayFilter" onchange="loadCashbacks()">
-                <option value="">Tag</option>
-            </select>
-            <select id="monthFilter" onchange="loadCashbacks()">
-                <option value="">Monat</option>
-            </select>
-            <select id="yearFilter" onchange="loadCashbacks()">
-                <option value="">Jahr</option>
-            </select>
-        </div>
+        <input type="date" id="purchaseDateFilter" onchange="loadCashbacks()">
     </div>
     <div>
         <label for="providerFilter">Geschäft:</label>
@@ -228,71 +210,10 @@
         document.addEventListener("DOMContentLoaded", loadCashbacks);
         document.getElementById("cashbackForm").addEventListener("submit", addCashback);
 
-        // Populate the dropdowns with the days, months, and years
-        function populateDateDropdowns() {
-            const currentYear = new Date().getFullYear();
-            const months = [
-                "Januar", "Februar", "März", "April", "Mai", "Juni",
-                "Juli", "August", "September", "Oktober", "November", "Dezember"
-            ];
-
-            // Populate the days
-            const daySelect = document.getElementById("day");
-            for (let i = 1; i <= 31; i++) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i;
-                daySelect.appendChild(option);
-            }
-
-            // Populate the months
-            const monthSelect = document.getElementById("month");
-            months.forEach((month, index) => {
-                const option = document.createElement("option");
-                option.value = index + 1;
-                option.textContent = month;
-                monthSelect.appendChild(option);
-            });
-
-            // Populate the years
-            const yearSelect = document.getElementById("year");
-            for (let i = currentYear; i >= currentYear - 10; i--) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i;
-                yearSelect.appendChild(option);
-            }
-
-            // Populate the filter dropdowns as well
-            const dayFilterSelect = document.getElementById("dayFilter");
-            for (let i = 1; i <= 31; i++) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i;
-                dayFilterSelect.appendChild(option);
-            }
-
-            const monthFilterSelect = document.getElementById("monthFilter");
-            months.forEach((month, index) => {
-                const option = document.createElement("option");
-                option.value = index + 1;
-                option.textContent = month;
-                monthFilterSelect.appendChild(option);
-            });
-
-            const yearFilterSelect = document.getElementById("yearFilter");
-            for (let i = currentYear; i >= currentYear - 10; i--) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i;
-                yearFilterSelect.appendChild(option);
-            }
-        }
-
         function addCashback(event) {
             event.preventDefault();
 
-            const purchaseDate = `${document.getElementById("day").value}-${document.getElementById("month").value}-${document.getElementById("year").value}`;
+            const purchaseDate = document.getElementById("purchaseDate").value;
 
             const cashback = {
                 purchaseDate: purchaseDate,
@@ -315,9 +236,7 @@
 
         function loadCashbacks() {
             const statusFilter = document.getElementById("statusFilter").value;
-            const dayFilter = document.getElementById("dayFilter").value;
-            const monthFilter = document.getElementById("monthFilter").value;
-            const yearFilter = document.getElementById("yearFilter").value;
+            const purchaseDateFilter = document.getElementById("purchaseDateFilter").value;
             const providerFilter = document.getElementById("providerFilter").value.toLowerCase();
             const cashbackList = document.getElementById("cashbackList");
             cashbackList.innerHTML = "";
@@ -325,23 +244,14 @@
             let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
             let filteredCashbacks = cashbacks;
 
-            // Filter by Status
             if (statusFilter) {
                 filteredCashbacks = filteredCashbacks.filter(cashback => cashback.status === statusFilter);
             }
 
-            // Filter by Date
-            if (dayFilter) {
-                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[0] === dayFilter);
-            }
-            if (monthFilter) {
-                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[1] === monthFilter);
-            }
-            if (yearFilter) {
-                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[2] === yearFilter);
+            if (purchaseDateFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate === purchaseDateFilter);
             }
 
-            // Filter by Provider
             if (providerFilter) {
                 filteredCashbacks = filteredCashbacks.filter(cashback => cashback.provider.toLowerCase().includes(providerFilter));
             }
@@ -379,5 +289,3 @@
 
 </body>
 </html>
-
-
