@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashback-Tracker | Gratis-Geier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 20px;
+            text-align: center;
+        }
+        h1 {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        h1 a {
+            color: white;
+            text-decoration: none;
+        }
+        form {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            max-width: 800px;
+            margin: auto;
+        }
+        input, select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        .received { background-color: #d4edda; }
+        .pending { background-color: #fff3cd; }
+        .rejected { background-color: #f8d7da; }
+        .delete-btn {
+            background: #dc3545;
+            padding: 5px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        .total-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.2em;
+            }
+            form {
+                max-width: 100%;
+                flex-direction: column;
+            }
+            input, select, button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            table {
+                font-size: 12px;
+                overflow-x: auto;
+                display: block;
+            }
+            th, td {
+                white-space: nowrap;
+            }
+            .total-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1em;
+            }
+            table {
+                font-size: 10px;
+            }
+            .total-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>
+        Cashback-Tracker powered by Gratis-Geier
+        <br>
+        <a href="https://www.spartanien.de/?n=gratisgeier" target="_blank" style="font-size: 16px; color: white; text-decoration: underline;">
+            Weitere Prämien kassieren mit Spartanien
+        </a>
+        <br>
+        <a href="https://gratisgeier.gumroad.com/l/nbcfj" target="_blank" style="font-size: 16px; color: white; text-decoration: underline;">
+            Kleinvieh macht auch Mist. Jetzt bestellen!
+        </a>
+    </h1>
+
+    <form id="cashbackForm">
+        <select id="day" required>
+            <option value="">Tag</option>
+        </select>
+        <select id="month" required>
+            <option value="">Monat</option>
+        </select>
+        <select id="year" required>
+            <option value="">Jahr</option>
+        </select>
+        <input type="text" id="provider" required placeholder="Geschäft">
+        <input type="number" id="amount" step="0.01" required placeholder="Betrag (€)">
+        <input type="tel" id="phone" required placeholder="Handynummer">
+        <input type="email" id="email" required placeholder="E-Mail">
+        <input type="text" id="iban" required placeholder="IBAN">
+        <input type="text" id="receipt" required placeholder="Bon-Nummer">
+        <select id="status">
+            <option value="pending">Offen</option>
+            <option value="received">Erhalten</option>
+            <option value="rejected">Abgelehnt</option>
+        </select>
+        <button type="submit">Hinzufügen</button>
+    </form>
+
+    <h3>Filter</h3>
+    <div>
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter" onchange="loadCashbacks()">
+            <option value="">Alle</option>
+            <option value="pending">Offen</option>
+            <option value="received">Erhalten</option>
+            <option value="rejected">Abgelehnt</option>
+        </select>
+    </div>
+    <div>
+        <label for="purchaseDateFilter">Kaufdatum:</label>
+        <div>
+            <select id="dayFilter" onchange="loadCashbacks()">
+                <option value="">Tag</option>
+            </select>
+            <select id="monthFilter" onchange="loadCashbacks()">
+                <option value="">Monat</option>
+            </select>
+            <select id="yearFilter" onchange="loadCashbacks()">
+                <option value="">Jahr</option>
+            </select>
+        </div>
+    </div>
+    <div>
+        <label for="providerFilter">Geschäft:</label>
+        <input type="text" id="providerFilter" oninput="loadCashbacks()" placeholder="Geschäft suchen">
+    </div>
+
+    <h3>Cashback-Übersicht</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Kaufdatum</th>
+                <th>Geschäft</th>
+                <th>Betrag (€)</th>
+                <th>Handynummer</th>
+                <th>E-Mail</th>
+                <th>IBAN</th>
+                <th>Bon-Nummer</th>
+                <th>Status</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody id="cashbackList"></tbody>
+    </table>
+
+    <div class="total-container">
+        <h3>Gesamtbetrag</h3>
+        <p><strong>Offene Beträge:</strong> <span id="pendingTotal">0.00</span> €</p>
+        <p><strong>Erhaltene Beträge:</strong> <span id="receivedTotal">0.00</span> €</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadCashbacks);
+        document.getElementById("cashbackForm").addEventListener("submit", addCashback);
+
+        // Populate the dropdowns with the days, months, and years
+        function populateDateDropdowns() {
+            const currentYear = new Date().getFullYear();
+            const months = [
+                "Januar", "Februar", "März", "April", "Mai", "Juni",
+                "Juli", "August", "September", "Oktober", "November", "Dezember"
+            ];
+
+            // Populate the days
+            const daySelect = document.getElementById("day");
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+
+            // Populate the months
+            const monthSelect = document.getElementById("month");
+            months.forEach((month, index) => {
+                const option = document.createElement("option");
+                option.value = index + 1;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+
+            // Populate the years
+            const yearSelect = document.getElementById("year");
+            for (let i = currentYear; i >= currentYear - 10; i--) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+
+            // Populate the filter dropdowns as well
+            const dayFilterSelect = document.getElementById("dayFilter");
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                dayFilterSelect.appendChild(option);
+            }
+
+            const monthFilterSelect = document.getElementById("monthFilter");
+            months.forEach((month, index) => {
+                const option = document.createElement("option");
+                option.value = index + 1;
+                option.textContent = month;
+                monthFilterSelect.appendChild(option);
+            });
+
+            const yearFilterSelect = document.getElementById("yearFilter");
+            for (let i = currentYear; i >= currentYear - 10; i--) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                yearFilterSelect.appendChild(option);
+            }
+        }
+
+        function addCashback(event) {
+            event.preventDefault();
+
+            const purchaseDate = `${document.getElementById("day").value}-${document.getElementById("month").value}-${document.getElementById("year").value}`;
+
+            const cashback = {
+                purchaseDate: purchaseDate,
+                provider: document.getElementById("provider").value,
+                amount: parseFloat(document.getElementById("amount").value).toFixed(2),
+                phone: document.getElementById("phone").value,
+                email: document.getElementById("email").value,
+                iban: document.getElementById("iban").value,
+                receipt: document.getElementById("receipt").value,
+                status: document.getElementById("status").value
+            };
+
+            let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
+            cashbacks.push(cashback);
+            localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
+
+            document.getElementById("cashbackForm").reset();
+            loadCashbacks();
+        }
+
+        function loadCashbacks() {
+            const statusFilter = document.getElementById("statusFilter").value;
+            const dayFilter = document.getElementById("dayFilter").value;
+            const monthFilter = document.getElementById("monthFilter").value;
+            const yearFilter = document.getElementById("yearFilter").value;
+            const providerFilter = document.getElementById("providerFilter").value.toLowerCase();
+            const cashbackList = document.getElementById("cashbackList");
+            cashbackList.innerHTML = "";
+
+            let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
+            let filteredCashbacks = cashbacks;
+
+            // Filter by Status
+            if (statusFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.status === statusFilter);
+            }
+
+            // Filter by Date
+            if (dayFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[0] === dayFilter);
+            }
+            if (monthFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[1] === monthFilter);
+            }
+            if (yearFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.purchaseDate.split("-")[2] === yearFilter);
+            }
+
+            // Filter by Provider
+            if (providerFilter) {
+                filteredCashbacks = filteredCashbacks.filter(cashback => cashback.provider.toLowerCase().includes(providerFilter));
+            }
+
+            let pendingTotal = 0, receivedTotal = 0;
+
+            filteredCashbacks.forEach((cashback, index) => {
+                if (cashback.status === "pending") pendingTotal += parseFloat(cashback.amount);
+                if (cashback.status === "received") receivedTotal += parseFloat(cashback.amount);
+
+                cashbackList.innerHTML += `
+                    <tr class="${cashback.status}">
+                        <td>${cashback.purchaseDate}</td>
+                        <td>${cashback.provider}</td>
+                        <td>${cashback.amount}</td>
+                        <td>${cashback.phone}</td>
+                        <td>${cashback.email}</td>
+                        <td>${cashback.iban}</td>
+                        <td>${cashback.receipt}</td>
+                        <td>
+                            <select onchange="updateStatus(${index}, this.value)">
+                                <option value="pending" ${cashback.status === "pending" ? "selected" : ""}>Offen</option>
+                                <option value="received" ${cashback.status === "received" ? "selected" : ""}>Erhalten</option>
+                                <option value="rejected" ${cashback.status === "rejected" ? "selected" : ""}>Abgelehnt</option>
+                            </select>
+                        </td>
+                        <td><button class="delete-btn" onclick="deleteCashback(${index})">Löschen</button></td>
+                    </tr>`;
+            });
+
+            document.getElementById("pendingTotal").innerText = pendingTotal.toFixed(2);
+            document.getElementById("receivedTotal").innerText = receivedTotal.toFixed(2);
+        }
+    </script>
+
+</body>
+</html>
+
+
