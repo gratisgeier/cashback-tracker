@@ -175,6 +175,9 @@
         <button type="submit">Hinzufügen</button>
     </form>
 
+    <!-- Druck-Button -->
+    <button onclick="printCashbacks()">Drucken</button>
+
     <h3>Filter</h3>
     <div>
         <label for="statusFilter">Status:</label>
@@ -240,18 +243,6 @@
             cashbacks.push(cashback);
             localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
 
-            // Save form values to localStorage
-            localStorage.setItem("lastFormValues", JSON.stringify({
-                purchaseDate: cashback.purchaseDate,
-                provider: cashback.provider,
-                amount: cashback.amount,
-                phone: cashback.phone,
-                email: cashback.email,
-                iban: cashback.iban,
-                receipt: cashback.receipt,
-                status: cashback.status
-            }));
-
             document.getElementById("cashbackForm").reset();
             loadCashbacks();
         }
@@ -312,6 +303,19 @@
             cashbacks.splice(index, 1); // Entfernt den Cashback-Eintrag
             localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
             loadCashbacks(); // Anzeige aktualisieren
+        }
+
+        function printCashbacks() {
+            const content = document.getElementById("cashbackList").parentElement;
+            const printWindow = window.open('', '', 'height=500, width=800');
+            printWindow.document.write('<html><head><title>Cashback-Übersicht</title>');
+            printWindow.document.write('<style>body {font-family: Arial, sans-serif;} table {width: 100%; border-collapse: collapse;} th, td {padding: 8px; border: 1px solid #ddd;} th {background: #007bff; color: white;} tr.received {background-color: #d4edda;} tr.pending {background-color: #fff3cd;} tr.rejected {background-color: #f8d7da;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Cashback-Übersicht</h1>');
+            printWindow.document.write(content.outerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
         }
     </script>
 
