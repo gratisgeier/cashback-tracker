@@ -156,7 +156,7 @@
 
     <!-- Hinweis hinzufügen -->
     <div class="note">
-        <strong>Hinweis:</strong> Ich empfehle zur Nutzung einen separaten Browser, da bei Löschung von Cookies und Verlauf die Eingaben verloren gehen. Das Schließen des Browsers löscht die Daten hingegen nicht.
+        <strong>Hinweis:</strong> Ich empfehle zur Nutzung einen separaten Browser, da bei Löschung von Cookies und Verlauf die Eingaben verloren gehen. Das reine Schließen des Browsers löscht die Daten hingegen nicht.
     </div>
 
     <form id="cashbackForm">
@@ -221,6 +221,7 @@
         <h3>Gesamtbetrag</h3>
         <p><strong>Offene Beträge:</strong> <span id="pendingTotal">0.00</span> €</p>
         <p><strong>Erhaltene Beträge:</strong> <span id="receivedTotal">0.00</span> €</p>
+        <p><strong>Verrechneter Betrag:</strong> <span id="netTotal">0.00</span> €</p>
     </div>
 
     <script>
@@ -272,7 +273,17 @@
                 filteredCashbacks = filteredCashbacks.filter(cashback => cashback.provider.toLowerCase().includes(providerFilter));
             }
 
+            let pendingTotal = 0;
+            let receivedTotal = 0;
+
             filteredCashbacks.forEach((cashback, index) => {
+                if (cashback.status === "pending") {
+                    pendingTotal += parseFloat(cashback.amount);
+                }
+                if (cashback.status === "received") {
+                    receivedTotal += parseFloat(cashback.amount);
+                }
+
                 cashbackList.innerHTML += `
                     <tr class="${cashback.status}">
                         <td>${cashback.purchaseDate}</td>
@@ -293,6 +304,13 @@
                         <td><button class="delete-btn" onclick="deleteCashback(${index})">Löschen</button></td>
                     </tr>`;
             });
+
+            // Verrechneten Betrag anzeigen
+            const netTotal = receivedTotal - pendingTotal;
+
+            document.getElementById("pendingTotal").textContent = pendingTotal.toFixed(2);
+            document.getElementById("receivedTotal").textContent = receivedTotal.toFixed(2);
+            document.getElementById("netTotal").textContent = netTotal.toFixed(2);
         }
 
         function updateStatus(index, newStatus) {
