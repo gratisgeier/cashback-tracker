@@ -145,7 +145,7 @@
     <h1>
         Cashback-Tracker powered by Gratis-Geier
         <br>
-        <a href="https://www.spartanien.de/BBBank+Tagesgeld?n=gratisgeier" target="_blank" style="font-size: 16px; color: white; text-decoration: underline;">
+        <a href="https://www.spartanien.de/BBBank+Girokonto?n=gratisgeier" target="_blank" style="font-size: 16px; color: white; text-decoration: underline;">
             Weitere Prämien kassieren mit Spartanien
         </a>
         <br>
@@ -167,6 +167,7 @@
         <input type="email" id="email" required placeholder="E-Mail">
         <input type="text" id="iban" required placeholder="IBAN">
         <input type="text" id="receipt" required placeholder="Bon-Nummer">
+        <input type="text" id="product" required placeholder="Produkt">
         <select id="status">
             <option value="pending">Offen</option>
             <option value="received">Erhalten</option>
@@ -203,6 +204,7 @@
             <tr>
                 <th>Kaufdatum</th>
                 <th>Geschäft</th>
+                <th>Produkt</th>
                 <th>Betrag (€)</th>
                 <th>Handynummer</th>
                 <th>E-Mail</th>
@@ -236,6 +238,7 @@
                 email: document.getElementById("email").value,
                 iban: document.getElementById("iban").value,
                 receipt: document.getElementById("receipt").value,
+                product: document.getElementById("product").value,
                 status: document.getElementById("status").value
             };
 
@@ -274,6 +277,7 @@
                     <tr class="${cashback.status}">
                         <td>${cashback.purchaseDate}</td>
                         <td>${cashback.provider}</td>
+                        <td>${cashback.product}</td>
                         <td>${cashback.amount}</td>
                         <td>${cashback.phone}</td>
                         <td>${cashback.email}</td>
@@ -293,16 +297,16 @@
 
         function updateStatus(index, newStatus) {
             let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
-            cashbacks[index].status = newStatus; // Status aktualisieren
+            cashbacks[index].status = newStatus;
             localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
-            loadCashbacks(); // Anzeige aktualisieren
+            loadCashbacks();
         }
 
         function deleteCashback(index) {
             let cashbacks = JSON.parse(localStorage.getItem("cashbacks")) || [];
             cashbacks.splice(index, 1); // Entfernt den Cashback-Eintrag
             localStorage.setItem("cashbacks", JSON.stringify(cashbacks));
-            loadCashbacks(); // Anzeige aktualisieren
+            loadCashbacks();
         }
 
         function printCashbacks() {
